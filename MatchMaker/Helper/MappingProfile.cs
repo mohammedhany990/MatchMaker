@@ -1,0 +1,18 @@
+﻿using AutoMapper;
+using MatchMaker.Core.DTOs;
+using MatchMaker.Core.Entities;
+
+namespace MatchMaker.Helper
+{
+    public class MappingProfile : Profile
+    {
+        public MappingProfile()
+        {
+            CreateMap<AppUser, MemberDto>()
+                .ForMember(dest => dest.PhotoUrl,
+                    opt => opt.MapFrom(src => src.Photos.FirstOrDefault(p => p.IsMain).Url));
+
+            CreateMap<Photo, PhotoDto>();
+        }
+    }
+}
