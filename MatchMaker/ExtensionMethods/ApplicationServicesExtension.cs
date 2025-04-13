@@ -6,6 +6,7 @@ using MatchMaker.Helper;
 using MatchMaker.Infrastructure.Identity;
 using MatchMaker.Infrastructure.Implementations;
 using MatchMaker.Infrastructure.Interfaces;
+using MatchMaker.Service;
 using MatchMaker.Service.Abstracts;
 using MatchMaker.Service.Implementations;
 using MediatR;
@@ -23,6 +24,7 @@ namespace MatchMaker.ExtensionMethods
             services.AddScoped(typeof(IAuthService), typeof(AuthService));
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
             services.AddScoped(typeof(IPhotoService), typeof(PhotoService));
+            services.AddScoped(typeof(IUserService), typeof(UserService));
 
             services.AddAutoMapper(typeof(MappingProfile));
 
