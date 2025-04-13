@@ -209,5 +209,63 @@ namespace MatchMaker.Controllers
                 message: "Main photo updated successfully"
             ));
         }
+
+        [HttpDelete("delete-photo/{photoId:int}")]
+        public async Task<ActionResult<BaseResponse<string>>> DeletePhoto(int photoId)
+        {
+            var user = await _userManager.Users
+                .AsNoTracking()
+                .Include(u => u.Photos)
+                .FirstOrDefaultAsync(u => u.Email.ToUpper() == User.GetEmail().ToUpper());
+
+            if (user is null)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodes.Status404NotFound,
+                    success: false,
+                    message: "User not found"
+                ));
+            }
+
+            var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
+            //var photo = await _unitOfWork.Repository<Photo, int>().GetAsync(photoId);
+            if (photo is null || photo.IsMain)
+            {
+                return NotFound(new BaseResponse<string>(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    success: false,
+                    message: "You cannot delete this photo"
+                ));
+            }
+
+            if (photo.PublicId is not null)
+            {
+                var result = await _photoService.DeletePhotoAsync(photo.PublicId);
+                if (result.Error is not null)
+                {
+                    return BadRequest(new BaseResponse<string>(
+                        statusCode: StatusCodes.Status400BadRequest,
+                        success: false,
+                        message: result.Error.Message
+                    ));
+                }
+            }
+            
+            _unitOfWork.Repository<Photo, int>().Delete(photo);
+            if (await _unitOfWork.SaveAsync() > 0)
+            {
+                return Ok(new BaseResponse<string>(
+                    statusCode: StatusCodes.Status200OK,
+                    success: true,
+                    message: "Photo deleted successfully"
+                ));
+            }
+            return BadRequest(new BaseResponse<string>(
+                statusCode: StatusCodes.Status400BadRequest,
+                success: false,
+                message: "Problem deleting photo"
+            ));
+
+        }
     }
 }

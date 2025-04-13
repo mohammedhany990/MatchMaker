@@ -11,6 +11,7 @@ using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AutoMapper;
 using MatchMaker.Infrastructure.Interfaces;
 
 namespace MatchMaker.Service.Implementations
@@ -21,37 +22,44 @@ namespace MatchMaker.Service.Implementations
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
         private readonly IDatabase _redis;
         public AuthService(IConfiguration configuration,
             UserManager<AppUser> userManager,
             IConnectionMultiplexer redis,
             SignInManager<AppUser> signInManager,
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            IMapper mapper
            )
         {
             _configuration = configuration;
             _userManager = userManager;
             _signInManager = signInManager;
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
             _redis = redis.GetDatabase();
 
         }
 
         
-        public async Task<BaseResponse<string>> RegisterAsync(RegisterCommand command)
+        public async Task<BaseResponse<UserResponse>> RegisterAsync(RegisterCommand command)
         {
-            var user = new AppUser
-            {
-                Email = command.Email,
-                UserName = command.Email.Split('@')[0],
-                //EmailConfirmed = false, // Not verified yet
-            };
-
+            //var user = new AppUser
+            //{
+            //    Email = command.Email,
+            //    UserName = command.Email.Split('@')[0],
+            //    City = command.City,
+            //    Country = command.Country,
+            //    Gender = command.Gender,
+            //    //EmailConfirmed = false, // Not verified yet
+            //};
+            var user = _mapper.Map<AppUser>(command);
+            user.UserName = command.Email.Split('@')[0];
             var result = await _userManager.CreateAsync(user, command.Password);
             if (!result.Succeeded)
             {
                 var errors = result.Errors.Select(e => e.Description);
-                return new BaseResponse<string>
+                return new BaseResponse<UserResponse>
                 {
                     Success = false,
                     StatusCode = 400,
@@ -71,9 +79,17 @@ namespace MatchMaker.Service.Implementations
             //        Message = isSent
             //    };
             //}
-
-            return new BaseResponse<string>
+            var jwtSecurityToken = await CreateJwtSecurityTokenAsync(user);
+            return new BaseResponse<UserResponse>
             {
+                Data = new UserResponse
+                {
+                    Email = user.Email,
+                    Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
+                    Username = user.UserName,
+                    KnownAs = user.KnownAs,
+
+                },
                 Success = true,
                 StatusCode = 200,
                 Message = "User Created Successfully, Please verify the OTP sent to your email."

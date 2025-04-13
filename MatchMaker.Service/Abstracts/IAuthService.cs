@@ -7,7 +7,7 @@ namespace MatchMaker.Service.Abstracts
 {
     public interface IAuthService
     {
-        Task<BaseResponse<string>> RegisterAsync(RegisterCommand request);
+        Task<BaseResponse<UserResponse>> RegisterAsync(RegisterCommand request);
 
         Task<UserResponse> LoginAsync(string email, string password);
 

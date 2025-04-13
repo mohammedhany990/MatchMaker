@@ -13,6 +13,8 @@ namespace MatchMaker.Helper
                     opt => opt.MapFrom(src => src.Photos.FirstOrDefault(p => p.IsMain).Url));
 
             CreateMap<Photo, PhotoDto>();
+            CreateMap<RegisterCommand, AppUser>();
+            CreateMap<string, DateOnly>().ConvertUsing(s=>DateOnly.Parse(s));
         }
     }
 }
