@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MatchMaker.Core.Specifications;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -28,5 +29,10 @@ namespace MatchMaker.Infrastructure.Interfaces
             Func<IQueryable<T>, IQueryable<T>> include = null);
         Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
         Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
+
+
+        Task<T> GetBySpecAsync(ISpecification<T> spec);
+        Task<List<T>> GetAllWithSpecAsync(ISpecification<T> spec);
+
     }
 }

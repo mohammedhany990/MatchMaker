@@ -1,84 +1,65 @@
 ﻿using MatchMaker.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using MatchMaker.Core.Specifications;
 using MatchMaker.Infrastructure.Identity;
 
 namespace MatchMaker.Infrastructure.Implementations
 {
-    public class GenericRepository<T, TI> : IGenericRepository<T, TI> where T : class
+    public class GenericRepository<T, TId> : IGenericRepository<T, TId> where T : class
     {
         private readonly AppIdentityDbContext _dbContext;
 
         public GenericRepository(AppIdentityDbContext dbContext)
         {
-            _dbContext = dbContext;
+            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<T?> GetAsync(TI id)
-        {
-            return await _dbContext.Set<T>().FindAsync(id);
-        }
+        #region CRUD Operations
 
-        // Get with filter + includes
+        public async Task<T?> GetAsync(TId id) => await _dbContext.Set<T>().FindAsync(id);
+
+        public async Task AddAsync(T entity) => await _dbContext.Set<T>().AddAsync(entity);
+
+        public void Update(T entity) => _dbContext.Set<T>().Update(entity);
+
+        public void Delete(T entity) => _dbContext.Set<T>().Remove(entity);
+
+        public void DeleteRange(IEnumerable<T> entities) => _dbContext.Set<T>().RemoveRange(entities);
+
+        public Task<int> DeleteWhereAsync(Expression<Func<T, bool>> predicate) =>
+            _dbContext.Set<T>().Where(predicate).ExecuteDeleteAsync();
+
+        #endregion
+
+
+
+        #region Query Operations
+       
         public async Task<T?> GetAsync(
             Expression<Func<T, bool>> filter,
-            Func<IQueryable<T>, IQueryable<T>>? include = null
-            )  
+            Func<IQueryable<T>, IQueryable<T>>? include = null)
         {
-            IQueryable<T> query = _dbContext.Set<T>();
-           
+            var query = _dbContext.Set<T>().AsQueryable();
             if (include != null)
             {
                 query = include(query);
             }
-
             return await query.FirstOrDefaultAsync(filter);
         }
 
-        public async Task AddAsync(T item)
-        {
-            _dbContext.Set<T>().AddAsync(item);
-        }
-
-        public void Update(T item)
-        {
-            _dbContext.Set<T>().Update(item);
-        }
-
-        public void Delete(T item)
-        {
-            _dbContext.Set<T>().Remove(item);
-        }
-
-        public void DeleteRange(IEnumerable<T> items)
-        {
-            _dbContext.Set<T>().RemoveRange(items);
-        }
-
-        public Task<int> DeleteWhereAsync(Expression<Func<T, bool>> predicate)
-        {
-            return _dbContext.Set<T>()
-                .Where(predicate)
-                .ExecuteDeleteAsync();
-        }
-
         public async Task<List<T>> GetAllAsync(
-            Expression<Func<T, bool>> filter = null,
-            Func<IQueryable<T>, IQueryable<T>> include = null)
+            Expression<Func<T, bool>>? filter = null,
+            Func<IQueryable<T>, IQueryable<T>>? include = null)
         {
-            IQueryable<T> query = _dbContext.Set<T>();
+            var query = _dbContext.Set<T>().AsQueryable();
 
-            if (filter is not null)
+            if (filter != null)
             {
                 query = query.Where(filter);
             }
 
-            if (include is not null)
+            if (include != null)
             {
                 query = include(query);
             }
@@ -86,17 +67,29 @@ namespace MatchMaker.Infrastructure.Implementations
             return await query.ToListAsync();
         }
 
-        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _dbContext.Set<T>()
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate) =>
+            await _dbContext.Set<T>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(predicate);
-        }
 
-        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _dbContext.Set<T>()
-                .AnyAsync(predicate);
-        }
+        public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate) =>
+            await _dbContext.Set<T>().AnyAsync(predicate);
+
+        #endregion
+
+
+
+        #region Specification Pattern
+
+        public async Task<List<T>> GetAllWithSpecAsync(ISpecification<T> spec) =>
+            await ApplySpecification(spec).ToListAsync();
+
+        public async Task<T?> GetBySpecAsync(ISpecification<T> spec) =>
+            await ApplySpecification(spec).FirstOrDefaultAsync();
+
+        private IQueryable<T> ApplySpecification(ISpecification<T> spec) =>
+            SpecificationEvaluator<T>.GetQuery(_dbContext.Set<T>().AsQueryable(), spec);
+
+        #endregion
     }
 }

@@ -25,6 +25,7 @@ namespace MatchMaker.ExtensionMethods
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
             services.AddScoped(typeof(IPhotoService), typeof(PhotoService));
             services.AddScoped(typeof(IUserService), typeof(UserService));
+            services.AddScoped(typeof(LogUserActivity));
 
             services.AddAutoMapper(typeof(MappingProfile));
 

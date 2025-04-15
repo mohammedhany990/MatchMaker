@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using MatchMaker.Core.DTOs;
 using MatchMaker.Core.Entities;
 using MatchMaker.Core.Helper;
+using MatchMaker.Core.Specifications;
 using MatchMaker.Infrastructure.Interfaces;
 using MatchMaker.Service.Abstracts;
 using Microsoft.AspNetCore.Http;
@@ -30,27 +31,17 @@ namespace MatchMaker.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<PaginatedResponse<MemberDto>> GetAllUsersAsync(UserParams userParams, string currentUsername)
+        public async Task<PaginatedResponse<MemberDto>> GetAllUsersAsync(
+            UserParams userParams,
+            string currentUsername)
         {
-            var query = _userManager.Users.AsQueryable();
-
-            query = query.Where(u => u.UserName != currentUsername);
-
-            if (userParams.Gender is not null)
-            {
-                query = query.Where(g => g.Gender == userParams.Gender);
-            }
-
-            var minDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-userParams.MaxAge - 1));
-            var maxDob = DateOnly.FromDateTime(DateTime.Today.AddYears(-userParams.MinAge));
-
-            query = query.Where(d => d.DateOfBirth >= minDob && d.DateOfBirth <= maxDob);
-
-            query = userParams.OrderBy switch
-            {
-                "created" => query.OrderByDescending(u => u.Created),
-                _ => query.OrderByDescending(u => u.LastActive)
-            };
+            
+            var spec = new UserSpecification(userParams, currentUsername);
+          
+            var query = SpecificationEvaluator<AppUser>.GetQuery(
+                _userManager.Users.AsQueryable(),
+                spec
+            );
 
             var users = await PagedList<MemberDto>.CreateAsync(
                 query.AsNoTracking()

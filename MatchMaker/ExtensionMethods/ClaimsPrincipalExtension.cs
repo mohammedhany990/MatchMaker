@@ -9,5 +9,11 @@ namespace MatchMaker.ExtensionMethods
             var email = user.FindFirstValue(ClaimTypes.Email);
             return email;
         }
+
+        public static string GetId(this ClaimsPrincipal user)
+        {
+            var id = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            return id;
+        }
     }
 }
