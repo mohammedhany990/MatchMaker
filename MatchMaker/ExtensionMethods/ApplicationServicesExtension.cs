@@ -1,17 +1,13 @@
-﻿using System.Reflection;
-using FluentValidation;
-using MatchMaker.Core.Entities;
+﻿using FluentValidation;
 using MatchMaker.Errors;
 using MatchMaker.Helper;
-using MatchMaker.Infrastructure.Identity;
 using MatchMaker.Infrastructure.Implementations;
 using MatchMaker.Infrastructure.Interfaces;
 using MatchMaker.Service;
 using MatchMaker.Service.Abstracts;
 using MatchMaker.Service.Implementations;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 
 namespace MatchMaker.ExtensionMethods
 {
@@ -25,6 +21,7 @@ namespace MatchMaker.ExtensionMethods
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
             services.AddScoped(typeof(IPhotoService), typeof(PhotoService));
             services.AddScoped(typeof(IUserService), typeof(UserService));
+            services.AddScoped(typeof(ILikeService), typeof(LikeService));
             services.AddScoped(typeof(LogUserActivity));
 
             services.AddAutoMapper(typeof(MappingProfile));

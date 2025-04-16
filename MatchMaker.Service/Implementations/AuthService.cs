@@ -1,7 +1,8 @@
-﻿using MatchMaker.Core.DTOs;
+﻿using AutoMapper;
+using MatchMaker.Core.DTOs;
 using MatchMaker.Core.Entities;
 using MatchMaker.Core.Helper;
-using MatchMaker.Infrastructure.Identity;
+using MatchMaker.Infrastructure.Interfaces;
 using MatchMaker.Service.Abstracts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,12 +12,10 @@ using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using AutoMapper;
-using MatchMaker.Infrastructure.Interfaces;
 
 namespace MatchMaker.Service.Implementations
 {
-   public class AuthService : IAuthService
+    public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
         private readonly UserManager<AppUser> _userManager;
@@ -41,7 +40,7 @@ namespace MatchMaker.Service.Implementations
 
         }
 
-        
+
         public async Task<BaseResponse<UserResponse>> RegisterAsync(RegisterCommand command)
         {
             //var user = new AppUser
@@ -116,7 +115,7 @@ namespace MatchMaker.Service.Implementations
                 Username = user.UserName,
                 Email = user.Email,
                 Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
-                PictureUrl = user.Photos.FirstOrDefault(x=>x.IsMain)?.Url
+                PictureUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
                 //ExpiresOn = jwtSecurityToken.ValidTo
             };
 

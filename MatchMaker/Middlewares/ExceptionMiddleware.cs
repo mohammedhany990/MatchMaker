@@ -1,6 +1,6 @@
-﻿using MatchMaker.Core.Helper;
+﻿using FluentValidation;
+using MatchMaker.Core.Helper;
 using System.Text.Json;
-using FluentValidation;
 
 namespace MatchMaker.Middlewares
 {

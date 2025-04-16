@@ -1,15 +1,11 @@
 ﻿using MatchMaker.Core.DTOs;
-using MatchMaker.Core.Entities;
 using MatchMaker.Core.Helper;
-using MatchMaker.Infrastructure.Identity;
 using MatchMaker.Service.Abstracts;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MatchMaker.Controllers
 {
-    
+
     public class AccountsController : ApiBaseController
     {
         private readonly IAuthService _authService;

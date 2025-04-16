@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using MatchMaker.Core.Helper;
+﻿using MatchMaker.Core.Helper;
+using System.Text.Json;
 
 namespace MatchMaker.ExtensionMethods
 {

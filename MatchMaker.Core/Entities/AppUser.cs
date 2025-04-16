@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MatchMaker.Core.DTOs;
-using MatchMaker.Core.ExtensionMethods;
+﻿using MatchMaker.Core.ExtensionMethods;
 using Microsoft.AspNetCore.Identity;
 
 namespace MatchMaker.Core.Entities

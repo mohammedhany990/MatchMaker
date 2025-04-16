@@ -1,7 +1,6 @@
 ﻿using MatchMaker.Core.Entities;
 using MatchMaker.ExtensionMethods;
 using MatchMaker.Infrastructure.Interfaces;
-using MatchMaker.Service.Abstracts;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace MatchMaker.Helper
@@ -20,7 +19,7 @@ namespace MatchMaker.Helper
             var service = resultContext.HttpContext.RequestServices
                 .GetRequiredService<IUnitOfWork>();
 
-            var user = await service.Repository<AppUser,string>().GetAsync(id);
+            var user = await service.Repository<AppUser, string>().GetAsync(id);
             if (user is null)
             {
                 return;

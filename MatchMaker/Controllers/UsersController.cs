@@ -1,12 +1,8 @@
-﻿using AutoMapper.QueryableExtensions;
-using MatchMaker.Core.DTOs;
-using MatchMaker.Core.Entities;
+﻿using MatchMaker.Core.DTOs;
 using MatchMaker.Core.Helper;
 using MatchMaker.ExtensionMethods;
-using MatchMaker.Infrastructure.Interfaces;
 using MatchMaker.Service.Abstracts;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MatchMaker.Controllers

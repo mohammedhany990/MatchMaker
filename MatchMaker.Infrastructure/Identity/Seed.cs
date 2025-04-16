@@ -2,13 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace MatchMaker.Infrastructure.Identity
 {
@@ -27,13 +22,13 @@ namespace MatchMaker.Infrastructure.Identity
 
             try
             {
-                
+
                 var usersData = await File.ReadAllTextAsync("../MatchMaker.Infrastructure/Identity/SeedingFiles/Users.json");
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
                     WriteIndented = true,
-                    DefaultIgnoreCondition = JsonIgnoreCondition.Never 
+                    DefaultIgnoreCondition = JsonIgnoreCondition.Never
                 };
                 var users = JsonSerializer.Deserialize<List<AppUser>>(usersData, options);
 
@@ -54,10 +49,10 @@ namespace MatchMaker.Infrastructure.Identity
                             continue;
                         }
 
-                       
+
                         var userName = user.Email?.Split('@', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()
                                        ?? throw new InvalidOperationException("User email cannot be null or empty");
-                       
+
                         var newUser = new AppUser
                         {
                             UserName = userName,
@@ -67,7 +62,7 @@ namespace MatchMaker.Infrastructure.Identity
                             DateOfBirth = user.DateOfBirth,
                             City = user.City,
                             Country = user.Country,
-                            Gender = user.Gender,    
+                            Gender = user.Gender,
                             Interests = user.Interests,
                             Introduction = user.Introduction,
                             Created = DateTime.UtcNow,
@@ -80,7 +75,7 @@ namespace MatchMaker.Infrastructure.Identity
                             }).ToList() ?? []
                         };
 
-                        
+
                         var result = await userManager.CreateAsync(newUser, "Abcd@1234");
 
                         if (result.Succeeded)

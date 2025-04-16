@@ -14,7 +14,7 @@ namespace MatchMaker.Helper
 
             CreateMap<Photo, PhotoDto>();
             CreateMap<RegisterCommand, AppUser>();
-            CreateMap<string, DateOnly>().ConvertUsing(s=>DateOnly.Parse(s));
+            CreateMap<string, DateOnly>().ConvertUsing(s => DateOnly.Parse(s));
 
         }
     }

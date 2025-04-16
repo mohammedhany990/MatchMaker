@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MatchMaker.Core.Helper
+﻿namespace MatchMaker.Core.Helper
 {
     public class PaginationHeader
     {
@@ -13,7 +7,7 @@ namespace MatchMaker.Core.Helper
         public int TotalItems { get; set; }
         public int TotalPages { get; set; }
 
-       
+
         public PaginationHeader(int currentPage, int itemsPerPage, int totalItems, int totalPages)
         {
             CurrentPage = currentPage;

@@ -6,7 +6,6 @@ using MatchMaker.Infrastructure.Identity;
 using MatchMaker.Middlewares;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using StackExchange.Redis;
@@ -112,7 +111,7 @@ namespace MatchMaker
             var app = builder.Build();
 
 
-           
+
 
             using var scope = app.Services.CreateAsyncScope();
             var services = scope.ServiceProvider;
@@ -127,7 +126,7 @@ namespace MatchMaker
                 var userManager = services.GetRequiredService<UserManager<AppUser>>();
 
                 await identityDbContext.Database.MigrateAsync();
-                await Seed.SeedUsers(identityDbContext,userManager);
+                await Seed.SeedUsers(identityDbContext, userManager);
             }
             catch (Exception ex)
             {

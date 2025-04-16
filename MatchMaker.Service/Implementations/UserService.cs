@@ -35,9 +35,9 @@ namespace MatchMaker.Service
             UserParams userParams,
             string currentUsername)
         {
-            
+
             var spec = new UserSpecification(userParams, currentUsername);
-          
+
             var query = SpecificationEvaluator<AppUser>.GetQuery(
                 _userManager.Users.AsQueryable(),
                 spec

@@ -1,8 +1,8 @@
-﻿using MatchMaker.Infrastructure.Interfaces;
+﻿using MatchMaker.Core.Specifications;
+using MatchMaker.Infrastructure.Identity;
+using MatchMaker.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using MatchMaker.Core.Specifications;
-using MatchMaker.Infrastructure.Identity;
 
 namespace MatchMaker.Infrastructure.Implementations
 {
@@ -35,7 +35,7 @@ namespace MatchMaker.Infrastructure.Implementations
 
 
         #region Query Operations
-       
+
         public async Task<T?> GetAsync(
             Expression<Func<T, bool>> filter,
             Func<IQueryable<T>, IQueryable<T>>? include = null)

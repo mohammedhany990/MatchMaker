@@ -1,11 +1,9 @@
-﻿using System.Text;
-using MatchMaker.Core.Entities;
+﻿using MatchMaker.Core.Entities;
 using MatchMaker.Infrastructure.Identity;
-using MatchMaker.Service.Abstracts;
-using MatchMaker.Service.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace MatchMaker.ExtensionMethods
 {

@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MatchMaker.Core.Entities;
-using MatchMaker.Infrastructure.Identity;
+﻿using MatchMaker.Infrastructure.Identity;
 using MatchMaker.Infrastructure.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using System.Collections;
 
 namespace MatchMaker.Infrastructure.Implementations
 {
@@ -19,7 +12,7 @@ namespace MatchMaker.Infrastructure.Implementations
         {
             _dbContext = dbContext;
         }
-       
+
 
         public IGenericRepository<T, TI> Repository<T, TI>() where T : class
         {
@@ -27,17 +20,17 @@ namespace MatchMaker.Infrastructure.Implementations
 
             if (!repositories.ContainsKey(key))
             {
-                var repository = new GenericRepository<T,TI>(_dbContext);
+                var repository = new GenericRepository<T, TI>(_dbContext);
                 repositories.Add(key, repository);
             }
 
-            return (IGenericRepository<T,TI>)repositories[key];
+            return (IGenericRepository<T, TI>)repositories[key];
         }
 
 
         public async Task<int> SaveAsync()
         {
-          return await _dbContext.SaveChangesAsync();
+            return await _dbContext.SaveChangesAsync();
         }
 
         public async ValueTask DisposeAsync()

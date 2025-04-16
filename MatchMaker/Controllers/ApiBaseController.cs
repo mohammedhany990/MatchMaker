@@ -1,5 +1,4 @@
 ﻿using MatchMaker.Helper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MatchMaker.Controllers

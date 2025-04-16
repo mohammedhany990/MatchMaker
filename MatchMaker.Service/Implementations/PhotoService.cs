@@ -1,12 +1,7 @@
-﻿using MatchMaker.Service.Abstracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CloudinaryDotNet;
+﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using MatchMaker.Infrastructure.Helper;
+using MatchMaker.Service.Abstracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
