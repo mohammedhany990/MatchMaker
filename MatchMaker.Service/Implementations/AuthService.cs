@@ -96,17 +96,29 @@ namespace MatchMaker.Service.Implementations
         }
 
 
-        public async Task<UserResponse> LoginAsync(string email, string password)
+        public async Task<BaseResponse<UserResponse>> LoginAsync(LoginCommand command)
         {
 
             var user = await _userManager.Users
-                .AsNoTracking()
                 .Include(u => u.Photos)
-                .FirstOrDefaultAsync(u => u.Email == email);
+                .FirstOrDefaultAsync(u => u.Email == command.Email);
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+            if (user is null)
+            {
+                return new BaseResponse<UserResponse>(404, false, "User not found");
+            }
+
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, command.Password);
+            if (!isPasswordValid)
+            {
+                return new BaseResponse<UserResponse>(401, false, "Invalid credentials");
+            }
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, command.Password, false);
             if (!result.Succeeded)
-                return null;
+            {
+                return new BaseResponse<UserResponse>(401, false, "Login failed");
+            }
 
             var jwtSecurityToken = await CreateJwtSecurityTokenAsync(user);
 
@@ -115,7 +127,8 @@ namespace MatchMaker.Service.Implementations
                 Username = user.UserName,
                 Email = user.Email,
                 Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
-                PictureUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
+                PictureUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url,
+                KnownAs = user.KnownAs,
                 //ExpiresOn = jwtSecurityToken.ValidTo
             };
 
@@ -139,7 +152,7 @@ namespace MatchMaker.Service.Implementations
             //    SetRefreshTokenInCookie(returnedUser.RefreshToken, returnedUser.RefreshTokenExpiration ?? DateTime.UtcNow.AddDays(10));
 
 
-            return returnedUser;
+            return new BaseResponse<UserResponse>(200, true, 1, returnedUser, "Login successful");
         }
 
         public async Task<JwtSecurityToken> CreateJwtSecurityTokenAsync(AppUser user)
@@ -147,7 +160,7 @@ namespace MatchMaker.Service.Implementations
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
 
             var roles = await _userManager.GetRolesAsync(user);
@@ -182,7 +195,7 @@ namespace MatchMaker.Service.Implementations
             throw new NotImplementedException();
         }
 
-        public async Task<bool> IsUserExistsByIdAsync(string userId)
+        public async Task<bool> IsUserExistsByIdAsync(int userId)
         {
             return await _userManager.Users.AnyAsync(i => i.Id == userId);
         }

@@ -2,6 +2,7 @@ using Asp.Versioning;
 using MatchMaker.Core.Entities;
 using MatchMaker.ExtensionMethods;
 using MatchMaker.Infrastructure.Helper;
+using MatchMaker.Infrastructure.Data;
 using MatchMaker.Infrastructure.Identity;
 using MatchMaker.Middlewares;
 using Microsoft.AspNetCore.Identity;
@@ -101,7 +102,7 @@ namespace MatchMaker
             //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             //});
 
-            builder.Services.AddDbContext<AppIdentityDbContext>(options =>
+            builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection"));
             });
@@ -115,18 +116,18 @@ namespace MatchMaker
 
             using var scope = app.Services.CreateAsyncScope();
             var services = scope.ServiceProvider;
-            //var dbContext = services.GetRequiredService<MatchMakerDbContext>();
-            var identityDbContext = services.GetRequiredService<AppIdentityDbContext>();
+            //var identityDbContext = services.GetRequiredService<AppDbContext>();
             var loggerFactory = services.GetRequiredService<ILoggerFactory>();
             try
             {
-                //await dbContext.Database.MigrateAsync();
-                //await Seed.SeedUsers(dbContext, loggerFactory);
+                var dbContext = services.GetRequiredService<AppDbContext>();
+                await dbContext.Database.MigrateAsync();
 
                 var userManager = services.GetRequiredService<UserManager<AppUser>>();
+                var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
 
-                await identityDbContext.Database.MigrateAsync();
-                await Seed.SeedUsers(identityDbContext, userManager);
+                await dbContext.Database.MigrateAsync();
+                await Seed.SeedUsers(dbContext, userManager, roleManager);
             }
             catch (Exception ex)
             {

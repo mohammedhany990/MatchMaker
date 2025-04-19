@@ -24,15 +24,10 @@ namespace MatchMaker.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<BaseResponse<UserResponse>>> Login(string email, string password)
+        public async Task<ActionResult<BaseResponse<UserResponse>>> Login([FromBody]LoginCommand command)
         {
-            var res = await _authService.LoginAsync(email, password);
-            if (res is null)
-            {
-                return Ok("Null");
-            }
-
-            return Ok(res);
+            var result = await _authService.LoginAsync(command);
+            return Ok(result);
         }
     }
 }

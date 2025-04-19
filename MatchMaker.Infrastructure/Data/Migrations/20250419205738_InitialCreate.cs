@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace MatchMaker.Infrastructure.Identity.Migrations
+namespace MatchMaker.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -15,7 +15,8 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -29,7 +30,8 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     KnownAs = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -66,7 +68,7 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RoleId = table.Column<int>(type: "int", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -87,7 +89,7 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -109,7 +111,7 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -126,8 +128,8 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    RoleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -150,7 +152,7 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -170,8 +172,8 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
                 name: "Likes",
                 columns: table => new
                 {
-                    SourceUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    TargetUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    SourceUserId = table.Column<int>(type: "int", nullable: false),
+                    TargetUserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -190,6 +192,39 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Messages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SenderUsername = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RecipientUsername = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateRead = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    MessageSent = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SenderDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    RecipientDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    SenderId = table.Column<int>(type: "int", nullable: false),
+                    RecipientId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Messages_AspNetUsers_RecipientId",
+                        column: x => x.RecipientId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Messages_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Photos",
                 columns: table => new
                 {
@@ -198,7 +233,7 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
                     Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PublicId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsMain = table.Column<bool>(type: "bit", nullable: false),
-                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    AppUserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -261,6 +296,16 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
                 column: "TargetUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Messages_RecipientId",
+                table: "Messages",
+                column: "RecipientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_SenderId",
+                table: "Messages",
+                column: "SenderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Photos_AppUserId",
                 table: "Photos",
                 column: "AppUserId");
@@ -286,6 +331,9 @@ namespace MatchMaker.Infrastructure.Identity.Migrations
 
             migrationBuilder.DropTable(
                 name: "Likes");
+
+            migrationBuilder.DropTable(
+                name: "Messages");
 
             migrationBuilder.DropTable(
                 name: "Photos");

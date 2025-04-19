@@ -77,6 +77,41 @@ namespace MatchMaker.Service
             );
         }
 
+        public async Task<BaseResponse<MemberDto>> GetUserByUsernameAsync(string username)
+        {
+            if (string.IsNullOrEmpty(username))
+            {
+                return new BaseResponse<MemberDto>(
+                    statusCode: StatusCodes.Status400BadRequest,
+                    success: false,
+                    message: "Username cannot be empty"
+                );
+            }
+
+
+            var normalizedUsername = username.ToLower();
+            var user = await _userManager.Users
+                .AsNoTracking()
+                .Include(u => u.Photos)
+                .FirstOrDefaultAsync(u => u.UserName == normalizedUsername);
+
+            if (user == null)
+            {
+                return new BaseResponse<MemberDto>(
+                    statusCode: StatusCodes.Status404NotFound,
+                    success: false,
+                    message: "User not found"
+                );
+            }
+
+            var mappedUser = _mapper.Map<MemberDto>(user);
+            return new BaseResponse<MemberDto>(
+                statusCode: StatusCodes.Status200OK,
+                success: true,
+                data: mappedUser
+            );
+        }
+
         public async Task<BaseResponse<PhotoDto>> AddPhotoAsync(IFormFile file, string userEmail)
         {
             var user = await _unitOfWork.Repository<AppUser, string>()
@@ -109,10 +144,10 @@ namespace MatchMaker.Service
             };
 
             user.Photos.Add(photo);
-            var mappedPhoto = _mapper.Map<PhotoDto>(photo);
-
-            if (await _unitOfWork.SaveAsync() > 0)
+            var done = await _unitOfWork.SaveAsync();
+            if (done > 0)
             {
+                var mappedPhoto = _mapper.Map<PhotoDto>(photo);
                 return new BaseResponse<PhotoDto>(
                     statusCode: StatusCodes.Status201Created,
                     success: true,

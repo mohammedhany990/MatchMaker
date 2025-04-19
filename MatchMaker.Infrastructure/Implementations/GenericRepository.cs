@@ -1,5 +1,5 @@
 ﻿using MatchMaker.Core.Specifications;
-using MatchMaker.Infrastructure.Identity;
+using MatchMaker.Infrastructure.Data;
 using MatchMaker.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -8,9 +8,9 @@ namespace MatchMaker.Infrastructure.Implementations
 {
     public class GenericRepository<T, TId> : IGenericRepository<T, TId> where T : class
     {
-        private readonly AppIdentityDbContext _dbContext;
+        private readonly AppDbContext _dbContext;
 
-        public GenericRepository(AppIdentityDbContext dbContext)
+        public GenericRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
@@ -35,6 +35,10 @@ namespace MatchMaker.Infrastructure.Implementations
 
 
         #region Query Operations
+        public IQueryable<T> GetAll()
+        {
+            return _dbContext.Set<T>().AsQueryable();
+        }
 
         public async Task<T?> GetAsync(
             Expression<Func<T, bool>> filter,
@@ -50,7 +54,8 @@ namespace MatchMaker.Infrastructure.Implementations
 
         public async Task<List<T>> GetAllAsync(
             Expression<Func<T, bool>>? filter = null,
-            Func<IQueryable<T>, IQueryable<T>>? include = null)
+            Func<IQueryable<T>, IQueryable<T>>? include = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null)
         {
             var query = _dbContext.Set<T>().AsQueryable();
 
@@ -62,6 +67,10 @@ namespace MatchMaker.Infrastructure.Implementations
             if (include != null)
             {
                 query = include(query);
+            }
+            if (orderBy != null)
+            {
+                query = orderBy(query);
             }
 
             return await query.ToListAsync();

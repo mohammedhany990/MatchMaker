@@ -2,6 +2,7 @@
 using MatchMaker.Core.Entities;
 using MatchMaker.Core.Helper;
 using System.IdentityModel.Tokens.Jwt;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace MatchMaker.Service.Abstracts
 {
@@ -9,13 +10,13 @@ namespace MatchMaker.Service.Abstracts
     {
         Task<BaseResponse<UserResponse>> RegisterAsync(RegisterCommand request);
 
-        Task<UserResponse> LoginAsync(string email, string password);
+        Task<BaseResponse<UserResponse>> LoginAsync(LoginCommand command);
 
         Task<bool> DeleteAccountAsync(string email);
 
         Task<bool> IsEmailConfirmedAsync(string email);
 
-        Task<bool> IsUserExistsByIdAsync(string userId);
+        Task<bool> IsUserExistsByIdAsync(int userId);
 
         Task<bool> CheckExistingUserByEmailAsync(string email);
 

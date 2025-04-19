@@ -19,7 +19,7 @@ namespace MatchMaker.Service.Implementations
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<UserLike?> GetUserLike(string sourceUserId, string targetUserId)
+        public async Task<UserLike?> GetUserLike(int sourceUserId, int targetUserId)
         {
             return await _unitOfWork.Repository<UserLike, string>()
                 .GetAsync(x => x.SourceUserId == sourceUserId && x.TargetUserId == targetUserId);
@@ -52,6 +52,7 @@ namespace MatchMaker.Service.Implementations
 
                 default:
                     var likeIds = await GetCurrentUserLikeIds(likesParams.UserId);
+
                     query = likes
                         .AsQueryable()
                         .Where(x => x.TargetUserId == likesParams.UserId && likeIds.Contains(x.SourceUserId))
@@ -68,12 +69,12 @@ namespace MatchMaker.Service.Implementations
             return new PaginatedResponse<MemberDto>(result);
         }
 
-        public async Task<IEnumerable<string>> GetCurrentUserLikeIds(string currentUserId)
+        public async Task<IEnumerable<int>> GetCurrentUserLikeIds(int currentUserId)
         {
             var ans = await _unitOfWork.Repository<UserLike, string>()
                 .GetAllAsync(x => x.SourceUserId == currentUserId);
 
-            var result = ans.Select(x => x.TargetUserId.ToString()).ToList();
+            var result = ans.Select(x => x.TargetUserId).ToList();
             return result;
         }
 

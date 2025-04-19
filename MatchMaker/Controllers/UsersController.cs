@@ -1,4 +1,5 @@
-﻿using MatchMaker.Core.DTOs;
+﻿using System.ComponentModel.DataAnnotations;
+using MatchMaker.Core.DTOs;
 using MatchMaker.Core.Helper;
 using MatchMaker.ExtensionMethods;
 using MatchMaker.Service.Abstracts;
@@ -16,7 +17,7 @@ namespace MatchMaker.Controllers
         {
             _userService = userService;
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("all-users")]
         public async Task<ActionResult<PaginatedResponse<MemberDto>>> GetAllUsers([FromQuery] UserParams userParams)
         {
@@ -28,10 +29,19 @@ namespace MatchMaker.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Member")]
         [HttpGet("user-by-email")]
-        public async Task<ActionResult<BaseResponse<MemberDto>>> GetUserByEmail(string email)
+        public async Task<ActionResult<BaseResponse<MemberDto>>> GetUserByEmail( string email)
         {
             var result = await _userService.GetUserByEmailAsync(email);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [Authorize(Roles = "Member")]
+        [HttpGet("user-by-username")]
+        public async Task<ActionResult<BaseResponse<MemberDto>>> GetUserByUsername([FromQuery] string username)
+        {
+            var result = await _userService.GetUserByUsernameAsync(username);
             return StatusCode(result.StatusCode, result);
         }
 
@@ -50,6 +60,7 @@ namespace MatchMaker.Controllers
 
             return StatusCode(result.StatusCode, result);
         }
+
 
         [HttpPut("set-main-photo/{photoId:int}")]
         [Authorize]

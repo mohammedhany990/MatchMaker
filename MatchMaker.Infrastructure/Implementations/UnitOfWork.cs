@@ -1,4 +1,4 @@
-﻿using MatchMaker.Infrastructure.Identity;
+﻿using MatchMaker.Infrastructure.Data;
 using MatchMaker.Infrastructure.Interfaces;
 using System.Collections;
 
@@ -6,9 +6,9 @@ namespace MatchMaker.Infrastructure.Implementations
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly AppIdentityDbContext _dbContext;
+        private readonly AppDbContext _dbContext;
         private Hashtable repositories = new Hashtable();
-        public UnitOfWork(AppIdentityDbContext dbContext)
+        public UnitOfWork(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }

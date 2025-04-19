@@ -10,10 +10,19 @@ namespace MatchMaker.ExtensionMethods
             return email;
         }
 
-        public static string GetId(this ClaimsPrincipal user)
+        public static int GetId(this ClaimsPrincipal user)
         {
-            var id = user.FindFirstValue(ClaimTypes.NameIdentifier);
-            return id;
+            var idClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(idClaim, out int userId))
+                return userId;
+
+            throw new Exception("User ID claim is missing or invalid.");
+        }
+        public static string GetUsername(this ClaimsPrincipal user)
+        {
+            var email = user.FindFirstValue(ClaimTypes.Email);
+            var username = email.Split('@')[0];
+            return username;
         }
     }
 }

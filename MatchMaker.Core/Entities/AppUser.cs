@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace MatchMaker.Core.Entities
 {
-    public class AppUser : IdentityUser
+    public class AppUser : IdentityUser<int>
     {
         public string KnownAs { get; set; }
         public DateOnly DateOfBirth { get; set; }
@@ -22,6 +22,10 @@ namespace MatchMaker.Core.Entities
 
         public List<UserLike> LikedUsers { get; set; } = new List<UserLike>();
 
+        public List<Message> MessagesSent { get; set; } = new List<Message>();
+        public List<Message> MessagesReceived { get; set; } = new List<Message>();
+
+        public ICollection<AppUserRole> UserRoles { get; set; } = new List<AppUserRole>();
 
         public int GetAge()
         {

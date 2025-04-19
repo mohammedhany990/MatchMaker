@@ -19,7 +19,7 @@ namespace MatchMaker.Helper
             var service = resultContext.HttpContext.RequestServices
                 .GetRequiredService<IUnitOfWork>();
 
-            var user = await service.Repository<AppUser, string>().GetAsync(id);
+            var user = await service.Repository<AppUser, int>().GetAsync(id);
             if (user is null)
             {
                 return;

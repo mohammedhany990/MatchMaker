@@ -20,9 +20,10 @@ namespace MatchMaker.Controllers
 
 
         [HttpPost("{targetUserId}")]
-        public async Task<ActionResult> ToggleLike(string targetUserId)
+        public async Task<ActionResult> ToggleLike(int targetUserId)
         {
-            var sourceUserId = User.GetId();
+            var sourceUserId = User.GetId() ;
+           
             if (sourceUserId == targetUserId)
             {
                 return BadRequest("You cannot like yourself.");
@@ -66,8 +67,7 @@ namespace MatchMaker.Controllers
 
 
         [HttpGet("check-like")]
-        public async Task<ActionResult<bool>> CheckUserLike([FromQuery] string sourceUserId,
-            [FromQuery] string targetUserId)
+        public async Task<ActionResult<bool>> CheckUserLike([FromQuery] int sourceUserId, [FromQuery] int targetUserId)
         {
             var like = await _likeService.GetUserLike(sourceUserId, targetUserId);
             return Ok(like != null);

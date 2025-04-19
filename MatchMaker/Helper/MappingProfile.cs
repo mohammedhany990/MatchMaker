@@ -16,6 +16,12 @@ namespace MatchMaker.Helper
             CreateMap<RegisterCommand, AppUser>();
             CreateMap<string, DateOnly>().ConvertUsing(s => DateOnly.Parse(s));
 
+            CreateMap<Message, MessageDto>()
+                .ForMember(dest => dest.SenderPhotoUrl,
+                    opt => opt.MapFrom(src => src.Sender.Photos.FirstOrDefault(p => p.IsMain)!.Url))
+                .ForMember(dest => dest.RecipientPhotoUrl,
+                    opt => opt.MapFrom(src => src.Recipient.Photos.FirstOrDefault(p => p.IsMain)!.Url));
+
         }
     }
 }
