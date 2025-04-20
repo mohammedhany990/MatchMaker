@@ -19,6 +19,14 @@ namespace MatchMaker.Service.Abstracts
         
         Task<IEnumerable<MessageDto>> GetMessagesThread(string currentUsername, string receiverUsername);
 
+        Task AddGroup(Group group);
+       
+        void RemoveConnection(Connection connection);
+
+        Task<Connection?> GetConnection(string connectionId);
+        Task<Group?> GetMessageGroup(string groupName);
+
+        Task<Group?> GetGroupForConnections(string connectionID);
         Task<bool> SaveAllAsync();
     }
 }

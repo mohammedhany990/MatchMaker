@@ -8,6 +8,7 @@ using MatchMaker.Service.Abstracts;
 using MatchMaker.Service.Implementations;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
+using MatchMaker.SignalR;
 
 namespace MatchMaker.ExtensionMethods
 {
@@ -37,6 +38,10 @@ namespace MatchMaker.ExtensionMethods
 
             //services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
+
+            services.AddSignalR();
+
+            services.AddSingleton<PresenceTracker>();
 
             services.Configure<ApiBehaviorOptions>(options =>
             {

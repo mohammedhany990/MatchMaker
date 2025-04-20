@@ -116,25 +116,10 @@ namespace MatchMaker.Service.Implementations
             return new PaginatedResponse<MessageDto>(pagedList);
         }
 
-        //public async Task<IEnumerable<MessageDto>> GetMessagesAsync(string currentUsername, string receiverUsername)
-        //{
-        //    var messages = await _unitOfWork.Repository<Message, int>()
-        //        .GetAllAsync(
-        //            filter: x => (x.Recipient.UserName == currentUsername && x.Sender.UserName == receiverUsername) ||
-        //                         (x.Recipient.UserName == receiverUsername && x.Sender.UserName == currentUsername),
-        //            orderBy: q => q.OrderByDescending(x => x.MessageSent));
-        //    return messages.AsQueryable().ProjectTo<MessageDto>(_mapper.ConfigurationProvider);
-        //}
-
         public async Task<IEnumerable<MessageDto>> GetMessagesThread(string currentUsername, string receiverUsername)
         {
             var messages = await _unitOfWork.Repository<Message, int>()
                 .GetAllAsync(
-                    include: q => q.Include(x => x.Sender)
-                        .ThenInclude(x => x.Photos)
-                        .Include(x => x.Recipient)
-                        .ThenInclude(x => x.Photos),
-
                     filter: x => (x.Recipient.UserName == currentUsername
                                   && x.RecipientDeleted == false
                                   && x.Sender.UserName == receiverUsername)
@@ -143,7 +128,6 @@ namespace MatchMaker.Service.Implementations
                                      && x.Sender.UserName == currentUsername),
 
                     orderBy: q => q.OrderBy(x => x.MessageSent));
-
 
             var unreadMessages = messages.Where(x => x.DateRead == null && x.Recipient.UserName == currentUsername);
 
@@ -156,9 +140,37 @@ namespace MatchMaker.Service.Implementations
                 await _unitOfWork.SaveAsync();
             }
 
-
-
             return _mapper.Map<IEnumerable<MessageDto>>(messages);
+        }
+
+        public async Task AddGroup(Group group)
+        {
+           await _unitOfWork.Repository<Group, string>().AddAsync(group);
+        }
+
+        public void RemoveConnection(Connection connection)
+        {
+            _unitOfWork.Repository<Connection, string>().Delete(connection);
+        }
+
+        public async Task<Connection?> GetConnection(string connectionId)
+        {
+            return await _unitOfWork.Repository<Connection, string>().GetAsync(connectionId);
+        }
+
+        public async Task<Group?> GetMessageGroup(string groupName)
+        {
+            return await _unitOfWork.Repository<Group, string>()
+                .FirstOrDefaultAsync(x => x.Name == groupName);
+        }
+
+        public async Task<Group?> GetGroupForConnections(string connectionID)
+        {
+            return await _unitOfWork.Repository<Group, string>()
+                .GetAll()
+                .Include(c => c.Connections)
+                .Where(x => x.Connections.Any(c => c.ConnectionId == connectionID))
+                .FirstOrDefaultAsync();
         }
 
         public async Task<bool> SaveAllAsync()

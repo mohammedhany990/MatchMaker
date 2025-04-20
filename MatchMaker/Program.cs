@@ -5,6 +5,7 @@ using MatchMaker.Infrastructure.Helper;
 using MatchMaker.Infrastructure.Data;
 using MatchMaker.Infrastructure.Identity;
 using MatchMaker.Middlewares;
+using MatchMaker.SignalR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -127,6 +128,8 @@ namespace MatchMaker
                 var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
 
                 await dbContext.Database.MigrateAsync();
+                await dbContext.Database.ExecuteSqlRawAsync(
+                    "DELETE FROM [Connections]");
                 await Seed.SeedUsers(dbContext, userManager, roleManager);
             }
             catch (Exception ex)
@@ -152,6 +155,8 @@ namespace MatchMaker
 
 
             app.MapControllers();
+            app.MapHub<PresenceHub>("hubs/presence");
+            app.MapHub<PresenceHub>("hubs/message");
 
             app.Run();
         }
