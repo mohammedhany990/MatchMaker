@@ -13,7 +13,7 @@ namespace MatchMaker.Helper
                     opt => opt.MapFrom(src => src.Photos.FirstOrDefault(p => p.IsMain).Url));
 
             CreateMap<Photo, PhotoDto>();
-            
+
             CreateMap<RegisterCommand, AppUser>();
 
             CreateMap<string, DateOnly>().ConvertUsing(s => DateOnly.Parse(s));
@@ -29,7 +29,7 @@ namespace MatchMaker.Helper
                 .ConvertUsing(d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
 
             CreateMap<DateTime?, DateTime?>()
-                .ConvertUsing(d => d.HasValue?
+                .ConvertUsing(d => d.HasValue ?
                     DateTime.SpecifyKind(d.Value, DateTimeKind.Utc) : null);
 
 

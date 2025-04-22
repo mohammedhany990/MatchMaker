@@ -2,15 +2,14 @@
 using MatchMaker.Core.Entities;
 using MatchMaker.Core.Helper;
 using System.IdentityModel.Tokens.Jwt;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace MatchMaker.Service.Abstracts
 {
     public interface IAuthService
     {
-        Task<BaseResponse<UserResponse>> RegisterAsync(RegisterCommand request);
+        Task<BaseResponse<string>> RegisterAsync(RegisterCommand request);
 
-        Task<BaseResponse<UserResponse>> LoginAsync(LoginCommand command);
+        Task<UserResponse> LoginAsync(LoginCommand command);
 
         Task<bool> DeleteAccountAsync(string email);
 
@@ -20,11 +19,14 @@ namespace MatchMaker.Service.Abstracts
 
         Task<bool> CheckExistingUserByEmailAsync(string email);
 
+        Task<AppUser?> GetUserByEmailAsync(string email);
+
+
         Task<JwtSecurityToken> CreateJwtSecurityTokenAsync(AppUser user);
 
-        //Task<UserResponse> GetCurrentUserAsync(string userId);
 
 
+        public Task<bool> IsPasswordValid(AppUser user, string password);
 
         //Task<UserDto> RefreshToken(HttpRequest request, HttpResponse response);
         //Task<BaseResponse<string>> RevokeToken(string? token, HttpRequest request);
@@ -34,10 +36,10 @@ namespace MatchMaker.Service.Abstracts
         //Task<bool> RevokeTokenAsync(string token);
 
 
-        //Task<string> ResetPasswordAsync(ResetPasswordCommand resetPasswordDto);
-        //Task<string> ChangePasswordAsync(ChangePasswordCommand request);
+        Task<string> ResetPasswordAsync(ResetPasswordCommand resetPasswordDto);
+        Task<string> ChangePasswordAsync(ChangePasswordCommand request);
 
-        //Task<BaseResponse<UserResponse>> VerifyOtpAsync(string email, string otp);
-        //Task<string> SendOtpAsync(string email);
+        Task<BaseResponse<UserResponse>> VerifyOtpAsync(string email, string otp);
+        Task<string> SendOtpAsync(string email);
     }
 }

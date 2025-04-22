@@ -19,7 +19,7 @@ namespace MatchMaker.Infrastructure.Interfaces
         Task<int> DeleteWhereAsync(Expression<Func<T, bool>> predicate);
 
         // Querying
-        IQueryable<T> GetAll(); 
+        IQueryable<T> GetAll();
         public Task<List<T>> GetAllAsync(
             Expression<Func<T, bool>> filter = null,
             Func<IQueryable<T>, IQueryable<T>> include = null,

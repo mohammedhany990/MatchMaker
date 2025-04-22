@@ -1,4 +1,6 @@
-﻿namespace MatchMaker.Core.DTOs
+﻿using Newtonsoft.Json;
+
+namespace MatchMaker.Core.DTOs
 {
     public class UserResponse
     {
@@ -8,5 +10,10 @@
         public string KnownAs { get; set; }
         public string PictureUrl { get; set; }
 
+        public DateTime? ExpiresOn { get; set; }
+        [JsonIgnore]
+        public string? RefreshToken { get; set; }
+
+        public DateTime? RefreshTokenExpiration { get; set; }
     }
 }

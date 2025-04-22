@@ -1,8 +1,8 @@
 ﻿using MatchMaker.Core.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using Microsoft.AspNetCore.Identity;
 
 namespace MatchMaker.Infrastructure.Data
 {

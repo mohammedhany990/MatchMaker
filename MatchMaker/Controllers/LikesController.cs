@@ -1,8 +1,13 @@
 ﻿using MatchMaker.Core.DTOs;
-using MatchMaker.Core.Entities;
 using MatchMaker.Core.Helper;
 using MatchMaker.ExtensionMethods;
+using MatchMaker.Features.Likes.Commands.AddLike;
+using MatchMaker.Features.Likes.Commands.RemoveLike;
+using MatchMaker.Features.Likes.Queries.CheckUserLike;
+using MatchMaker.Features.Likes.Queries.GetCurrentUserLikeIds;
+using MatchMaker.Features.Likes.Queries.GetUserLikes;
 using MatchMaker.Service.Abstracts;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,67 +16,55 @@ namespace MatchMaker.Controllers
     [Authorize]
     public class LikesController : ApiBaseController
     {
-        private readonly ILikeService _likeService;
+        private readonly IMediator _mediator;
 
-        public LikesController(ILikeService likeService)
+        public LikesController(IMediator mediator)
         {
-            _likeService = likeService;
+            _mediator = mediator;
         }
 
-
-        [HttpPost("{targetUserId}")]
-        public async Task<ActionResult> ToggleLike(int targetUserId)
+        [HttpPost("add/{targetUserId}")]
+        public async Task<ActionResult<BaseResponse<bool>>> AddLike(int targetUserId)
         {
-            var sourceUserId = User.GetId() ;
-           
-            if (sourceUserId == targetUserId)
-            {
-                return BadRequest("You cannot like yourself.");
-            }
-
-            var like = await _likeService.GetUserLike(sourceUserId, targetUserId);
-            if (like != null)
-            {
-                _likeService.DeleteLike(like);
-                await _likeService.SaveAsync();
-                return Ok(new { liked = false });
-            }
-
-            var newLike = new UserLike
-            {
-                SourceUserId = sourceUserId,
-                TargetUserId = targetUserId
-            };
-            await _likeService.AddLike(newLike);
-            await _likeService.SaveAsync();
-            return Ok(new { liked = true });
+            var result = await _mediator.Send(new AddLikeCommand(User.GetId(), targetUserId));
+            return Ok( result);
         }
 
+        [HttpDelete("remove/{targetUserId}")]
+        public async Task<ActionResult<BaseResponse<bool>>> RemoveLike(int targetUserId)
+        {
+            var result = await _mediator.Send(new RemoveLikeCommand(User.GetId(), targetUserId));
+            return Ok(result);
+        }
 
         [HttpGet("list")]
-        public async Task<ActionResult<IEnumerable<string>>> GetCurrentUserLikeIds()
+        public async Task<ActionResult<BaseResponse<IEnumerable<int>>>> GetCurrentUserLikeIds()
         {
-            return Ok(await _likeService.GetCurrentUserLikeIds(User.GetId()));
+            var result = await _mediator.Send(new GetCurrentUserLikeIdsQuery(User.GetId()));
+            return StatusCode(result.StatusCode, result);
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDto>>> GetUserLikes([FromQuery] LikesParams likesParams)
+        public async Task<ActionResult<PaginatedResponse<MemberDto>>> GetUserLikes([FromQuery] LikesParams likesParams)
         {
-            likesParams.UserId = User.GetId();
+            var query = new GetUserLikesQuery
+            {
+                Predicate = likesParams.Predicate,
+                PageNumber = likesParams.PageNumber,
+                PageSize = likesParams.PageSize
+            };
 
-            var users = await _likeService.GetUserLikes(likesParams);
-            Response.AddPaginationHeader(users);
-            return Ok(users);
+            var result = await _mediator.Send(query);
+
+            Response.AddPaginationHeader(result);
+            return Ok(result);
         }
-
-
-
         [HttpGet("check-like")]
-        public async Task<ActionResult<bool>> CheckUserLike([FromQuery] int sourceUserId, [FromQuery] int targetUserId)
+        public async Task<ActionResult<BaseResponse<bool>>> CheckUserLike([FromQuery] int sourceUserId, [FromQuery] int targetUserId)
         {
-            var like = await _likeService.GetUserLike(sourceUserId, targetUserId);
-            return Ok(like != null);
+            var result = await _mediator.Send(new CheckUserLikeQuery(sourceUserId, targetUserId));
+            return Ok(result);
         }
-    }
 
+    }
 }

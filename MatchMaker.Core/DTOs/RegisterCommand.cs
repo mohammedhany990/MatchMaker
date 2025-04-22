@@ -1,6 +1,9 @@
-﻿namespace MatchMaker.Core.DTOs
+﻿using MatchMaker.Core.Helper;
+using MediatR;
+
+namespace MatchMaker.Core.DTOs
 {
-    public class RegisterCommand
+    public class RegisterCommand : IRequest<BaseResponse<string>>
     {
         public string Email { get; set; }
         public string Password { get; set; }

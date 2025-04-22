@@ -3,7 +3,12 @@ using MatchMaker.Core.DTOs;
 using MatchMaker.Core.Entities;
 using MatchMaker.Core.Helper;
 using MatchMaker.ExtensionMethods;
+using MatchMaker.Features.Messages.Commands;
+using MatchMaker.Features.Messages.Commands.DeleteMessage;
+using MatchMaker.Features.Messages.Queries.GetMessagesForUser;
+using MatchMaker.Features.Messages.Queries.GetMessageThread;
 using MatchMaker.Service.Abstracts;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,86 +19,45 @@ namespace MatchMaker.Controllers
     [Authorize]
     public class MessagesController : ApiBaseController
     {
-        private readonly IMessageService _messageService;
-        private readonly UserManager<AppUser> _userManager;
-        private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
 
-        public MessagesController(IMessageService messageService, UserManager<AppUser> userManager, IMapper mapper)
+        public MessagesController(IMediator mediator)
         {
-            _messageService = messageService;
-            _userManager = userManager;
-            _mapper = mapper;
+            _mediator = mediator;
         }
 
         [HttpPost("add-message")]
-        public async Task<ActionResult> CreateMessage([FromBody] CreateMessageDto createMessageDto)
+        public async Task<ActionResult<BaseResponse<MessageDto>>> CreateMessage([FromBody] CreateMessageCommand command)
         {
-            var username = User.GetUsername();
-
-            if (username == createMessageDto.RecipientUsername.ToLower())
-            {
-                return BadRequest("You cannot send a message to yourself");
-            }
-
-            var sender = await _userManager.Users
-                .Include(x => x.Photos)
-                .FirstOrDefaultAsync(x => x.UserName == username);
-
-            var recipient = await _userManager.Users
-                .Include(x => x.Photos)
-                .FirstOrDefaultAsync(x => x.UserName == createMessageDto.RecipientUsername.ToLower());
-
-            if (sender == null || recipient == null || sender.UserName == null || recipient.UserName == null)
-            {
-                return NotFound("Message cannot be sent at this time.");
-            }
-
-            var message = new Message
-            {
-                Sender = sender,
-                Recipient = recipient,
-                SenderUsername = sender.UserName,
-                RecipientUsername = recipient.UserName,
-                Content = createMessageDto.Content
-            };
-
-            await _messageService.AddMessage(message);
-
-            if (await _messageService.SaveAllAsync())
-            {
-                var msgDto = _mapper.Map<MessageDto>(message);
-                return Ok(msgDto);
-            }
-
-            return BadRequest("Failed to add message");
+            var result = await _mediator.Send(command);
+            return Ok(result);
         }
+
 
         [HttpGet]
-        public async Task<ActionResult<PaginatedResponse<MessageDto>>> GetMessagesForUser(
-            [FromQuery] MessageParams messageParams)
+        public async Task<ActionResult<PaginatedResponse<MessageDto>>> GetMessagesForUser([FromQuery] MessageParams messageParams)
         {
             messageParams.Username = User.GetUsername();
-            var messages = await _messageService.GetMessageForUser(messageParams);
-            Response.AddPaginationHeader(messages);
 
-            return messages;
-        }
+            var result = await _mediator.Send(new GetMessagesForUserQuery{ MessageParams = messageParams });
 
-        [HttpGet("thread/{username}")]
-        public async Task<ActionResult<IEnumerable<MessageDto>>> GetMessagesThread(string username)
-        {
-            var currentUsername = User.GetUsername();
-            var messages = await _messageService.GetMessagesThread(currentUsername, username);
-            return Ok(messages);
+            Response.AddPaginationHeader(result);
+
+            return Ok(result);
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<ActionResult> DeleteMessage(int id)
+        public async Task<ActionResult<BaseResponse<string>>> DeleteMessage(int id)
         {
-            var userId = User.GetId();
-            var result = await _messageService.DeleteMessage(id, userId);
-            return BadRequest(result);
+            var result = await _mediator.Send(new DeleteMessageCommand(id, User.GetId()));
+            return Ok(result);
+        }
 
+        [HttpGet("thread/{username}")]
+        public async Task<ActionResult<BaseResponse<IEnumerable<MessageDto>>>> GetMessagesThread(string username)
+        {
+            var result = await _mediator.Send(new GetMessagesThreadQuery(User.GetUsername(), username));
+            return Ok(result);
         }
     }
 }

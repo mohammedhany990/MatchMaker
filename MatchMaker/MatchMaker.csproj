@@ -18,8 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Behaviours\" />
-    <Folder Include="Features\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

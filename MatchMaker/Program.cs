@@ -1,8 +1,9 @@
 using Asp.Versioning;
 using MatchMaker.Core.Entities;
 using MatchMaker.ExtensionMethods;
-using MatchMaker.Infrastructure.Helper;
 using MatchMaker.Infrastructure.Data;
+using MatchMaker.Infrastructure.Email;
+using MatchMaker.Infrastructure.Helper;
 using MatchMaker.Infrastructure.Identity;
 using MatchMaker.Middlewares;
 using MatchMaker.SignalR;
@@ -91,6 +92,8 @@ namespace MatchMaker
             builder.Services.AddIdentityServices(builder.Configuration);
 
             builder.Services.AddHttpContextAccessor();
+
+            builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
             builder.Services.AddSingleton<IConnectionMultiplexer>(opt =>
             {

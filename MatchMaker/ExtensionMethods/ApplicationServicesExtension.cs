@@ -1,14 +1,17 @@
 ﻿using FluentValidation;
+using MatchMaker.Behaviours;
 using MatchMaker.Errors;
 using MatchMaker.Helper;
+using MatchMaker.Infrastructure.Email;
 using MatchMaker.Infrastructure.Implementations;
 using MatchMaker.Infrastructure.Interfaces;
 using MatchMaker.Service;
 using MatchMaker.Service.Abstracts;
 using MatchMaker.Service.Implementations;
+using MatchMaker.SignalR;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
-using MatchMaker.SignalR;
 
 namespace MatchMaker.ExtensionMethods
 {
@@ -18,12 +21,21 @@ namespace MatchMaker.ExtensionMethods
         {
 
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
+
             services.AddScoped(typeof(IAuthService), typeof(AuthService));
+
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
+
             services.AddScoped(typeof(IPhotoService), typeof(PhotoService));
+
             services.AddScoped(typeof(IUserService), typeof(UserService));
+
             services.AddScoped(typeof(ILikeService), typeof(LikeService));
+
             services.AddScoped(typeof(IMessageService), typeof(MessageService));
+
+            services.AddScoped(typeof(IEmailSettings), typeof(EmailSettings));
+
             services.AddScoped(typeof(LogUserActivity));
 
             services.AddAutoMapper(typeof(MappingProfile));
@@ -36,7 +48,7 @@ namespace MatchMaker.ExtensionMethods
 
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-            //services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 
             services.AddSignalR();

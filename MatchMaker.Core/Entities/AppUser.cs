@@ -27,6 +27,8 @@ namespace MatchMaker.Core.Entities
 
         public ICollection<AppUserRole> UserRoles { get; set; } = new List<AppUserRole>();
 
+        public List<RefreshToken>? RefreshTokens { get; set; } = new List<RefreshToken>();
+
         public int GetAge()
         {
             return DateOfBirth.CalculateAge();

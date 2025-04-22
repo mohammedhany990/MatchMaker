@@ -1,10 +1,10 @@
 ﻿using MatchMaker.Core.Entities;
+using MatchMaker.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using MatchMaker.Infrastructure.Data;
 
 namespace MatchMaker.Infrastructure.Identity
 {
@@ -24,9 +24,9 @@ namespace MatchMaker.Infrastructure.Identity
 
             try
             {
-              
+
                 var usersData = await File.ReadAllTextAsync("../MatchMaker.Infrastructure/Data/SeedingFiles/Users.json");
-                
+
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,

@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MatchMaker.Core.Entities
+﻿namespace MatchMaker.Core.Entities
 {
-    public class Message: BaseEntity<int>
+    public class Message : BaseEntity<int>
     {
         //public int Id { get; set; }
 
         public string SenderUsername { get; set; }
         public string RecipientUsername { get; set; }
-       
+
         public string Content { get; set; }
 
         public DateTime? DateRead { get; set; }

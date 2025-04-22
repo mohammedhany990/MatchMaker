@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Email\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MatchMaker.Core\MatchMaker.Core.csproj" />
   </ItemGroup>
 

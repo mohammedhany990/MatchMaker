@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MatchMaker.Service.Implementations
 {
-   public class LikeService : ILikeService
+    public class LikeService : ILikeService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -19,6 +19,7 @@ namespace MatchMaker.Service.Implementations
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+
         public async Task<UserLike?> GetUserLike(int sourceUserId, int targetUserId)
         {
             return await _unitOfWork.Repository<UserLike, string>()
@@ -60,7 +61,7 @@ namespace MatchMaker.Service.Implementations
                         .ProjectTo<MemberDto>(_mapper.ConfigurationProvider);
                     break;
             }
-           
+
             var result = PagedList<MemberDto>.Create(
                 query,
                 likesParams.PageNumber,

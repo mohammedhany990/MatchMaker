@@ -3,7 +3,6 @@ using MatchMaker.Core.DTOs;
 using MatchMaker.Core.Entities;
 using MatchMaker.ExtensionMethods;
 using MatchMaker.Service.Abstracts;
-using MatchMaker.Service.Implementations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -50,9 +49,9 @@ namespace MatchMaker.SignalR
 
             await Clients.Group(groupName).SendAsync("UpdatedGroup", group);
 
-            var message = await _messageService.GetMessagesThread(Context.User.GetUsername(), otherUser!);
+            var messages = await _messageService.GetMessagesThread(Context.User.GetUsername(), otherUser!);
 
-            await Clients.Caller.SendAsync("ReceiveMessageThread", message);
+            await Clients.Caller.SendAsync("ReceiveMessageThread", messages);
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
@@ -158,7 +157,7 @@ namespace MatchMaker.SignalR
             }
             throw new HubException("Failed to add to group.");
         }
-        
+
         private async Task RemoveFromGroup(string groupName)
         {
             var connection = await _messageService.GetConnection(Context.ConnectionId);
@@ -167,11 +166,11 @@ namespace MatchMaker.SignalR
                 _messageService.RemoveConnection(connection);
             }
         }
-        
+
         private async Task<Group> RemoveFromMessageGroup()
         {
             var groups = await _messageService.GetGroupForConnections(Context.ConnectionId);
-            var connection = groups?.Connections.FirstOrDefault(x=> x.ConnectionId == Context.ConnectionId);
+            var connection = groups?.Connections.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
             if (connection != null && groups != null)
             {
                 _messageService.RemoveConnection(connection);
